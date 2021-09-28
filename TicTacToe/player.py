@@ -24,7 +24,7 @@ class HumanPlayer(Player):
         valad_square = False
         val = None
         while not valad_square:
-            square = input(self.letter + '\'s turn. Input move (0-9):')
+            square = input(self.letter + '\'s turn. Input move (0-8):')
 
             try:
                 val = int(square)
