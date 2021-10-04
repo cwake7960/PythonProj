@@ -1,5 +1,6 @@
-from _typeshed import Self
+#from _typeshed import Self
 import random
+import re
 
 
 class Board:
@@ -12,10 +13,7 @@ class Board:
         self.assign_values_to_board()
 
         self.dug = set()
-        
-   
-        
-    
+         
     def make_new_board(self):
 
 
@@ -37,11 +35,11 @@ class Board:
         return board
 
     def assign_values_to_board(self):
-             for r in range(Self.dim_size):
-                 for c in range(self.dim_size):
-                     if self.board[r] [c] == '*':
+            for r in range(self.dim_size):
+                for c in range(self.dim_size):
+                    if self.board[r] [c] == '*':
                         continue
-                    self.board[r][c] = self.get_num_neighboring_bombs()
+                    self.board[r][c] = self.get_num_neighboring_bombs(r, c)
 
     def get_num_neighboring_bombs(self, row, col):
 
@@ -54,8 +52,62 @@ class Board:
                     num_neighboring_bombs +=1
         return num_neighboring_bombs
 
+    def dig(self, row, col):
+
+        self.dug.add((row, col))
+
+        if self.board[row] [col] == '*':
+            return False
+        elif self.board [row] [col] > 0:
+            return True
+
+        for r in range(max(0, row-1), min(self.dim_size-1, row+1)+1):
+            for c in range(max(0, col-1), min(self.dim_size-1, col+1)+1):
+                if (r, c) in self.dug:
+                    continue
+                self.dig(r, c)
+
+        return True
+
+    def __str__(self):
+
+        visible_board = [[None for _ in range(self.dim_size)]for _ in range(self.dim_size)]
+        for row in range(self.dim_size):
+            for col in range(self.dim_size):
+                if (row, col) in self.dug:
+                    visible_board[row][col] = str (self.board[row] [col])
+                else:
+                    visible_board[row][col] = ''
+
 
 
 def play(dim_size=10, num_bombs=10):
+    board = Board(dim_size, num_bombs)
+
+    safe = True
+
+    while len(board.dug) < board.dim_size ** 2 - num_bombs:
+        print('poop')
+        user_input = re.split(',(\\s)*', input("Where would you like to dig? Input as row,col: "))
+        row, col = int(user_input[0]), int(user_input[-1])
+        if row < 0 or row >= board.dim_size or col < 0 or col >= board.dim_size:
+            print("Invalid location. Try Agian")
+            continue
+
+        safe = board.dig(row, col)
+        if not safe:
+            break
+
+    if safe:
+        print("Congralations you won")
+    else:
+        print("Gamr Over")
+        board.dug = [(r,c) for r in range(board.dim_size) for c in range(board.dim_size)]
+        print(board)
+
+if __name__ == '__main__': # good practice :)
+    play()
+
+
+
     
-     pass
